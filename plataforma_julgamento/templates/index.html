@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h3>🚀 Competições Disponíveis</h3>
+    {% if competicoes %}
+        <ul>
+            {% for comp in competicoes %}
+                <li>
+                    <strong>{{ comp.nome }}</strong> 
+                    ({{ comp.inicio.strftime('%d/%m/%Y %H:%M') }} até {{ comp.termino.strftime('%d/%m/%Y %H:%M') }})
+                    
+                    {% if comp.termino < agora %}
+                        <span style="color: red; font-weight: bold;">[ENCERRADA]</span>
+                    {% endif %}
+                    
+                    - <a href="/competicao/{{ comp.id }}">Acessar Competição</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhuma competição ativa no momento.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Painel do Administrador</h2>
+
+<div class="card" style="border-left-color: orange;">
+    <h3>⚖️ Submissões Pendentes</h3>
+    {% for sub in pendentes %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+            <strong>Comp:</strong> {{ sub.problema.competicao.nome }} | <strong>Prob:</strong> {{ sub.problema.letra }} - {{ sub.problema.nome }} | <strong>Usuário:</strong> {{ sub.user.nome }}
+            <pre>{{ sub.codigo }}</pre>
+            <form method="POST" style="display: inline;">
+                <input type="hidden" name="acao" value="julgar">
+                <input type="hidden" name="submissao_id" value="{{ sub.id }}">
+                <select name="status" style="width: 200px; display: inline;">
+                    <option value="correta">Correta</option>
+                    <option value="incorreta">Incorreta</option>
+                    <option value="tempo limite excedido">Tempo Limite Excedido</option>
+                    <option value="inválida">Inválida</option>
+                </select>
+                <button type="submit">Gravar Veredito</button>
+            </form>
+        </div>
+    {% else %}
+        <p>Nenhuma submissão pendente.</p>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h3>🚩 Competições</h3>
+    <form method="POST" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+        <input type="hidden" name="acao" value="add_competicao">
+        <input type="text" name="nome" placeholder="Nome da Competição" required>
+        <label>Início:</label> <input type="datetime-local" name="inicio" required>
+        <label>Término:</label> <input type="datetime-local" name="termino" required>
+        <button type="submit">Criar Competição</button>
+    </form>
+    
+    <table>
+        <tr><th>Nome</th><th>Término</th><th>Ações</th></tr>
+        {% for comp in competicoes %}
+        <tr>
+            <td>{{ comp.nome }}</td>
+            <td>{{ comp.termino.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+                <a href="/admin/competicao/{{ comp.id }}/editar">✏️ Editar</a> | 
+                <a href="/admin/competicao/{{ comp.id }}/remover" onclick="return confirm('Tem certeza? Isso apagará a competição e TODAS as suas submissões/problemas!');">🗑️ Apagar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card">
+    <h3>📝 Gestão de Problemas</h3>
+    
+    <form method="POST" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+        <input type="hidden" name="acao" value="add_problema">
+        <select name="competicao_id" required>
+            <option value="">Selecione a Competição</option>
+            {% for comp in competicoes %}
+                <option value="{{ comp.id }}">{{ comp.nome }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="nome" placeholder="Nome do Problema" required>
+        <button type="submit">Adicionar Problema</button>
+    </form>
+
+    <h4>Problemas Cadastrados</h4>
+    <table>
+        <tr><th>Competição</th><th>Letra</th><th>Nome</th><th>Ações</th></tr>
+        {% for prob in problemas %}
+        <tr>
+            <td>{{ prob.competicao.nome }}</td>
+            <td><strong>{{ prob.letra }}</strong></td>
+            <td>{{ prob.nome }}</td>
+            <td>
+                <a href="/admin/problema/{{ prob.id }}/editar">✏️ Editar</a> | 
+                <a href="/admin/problema/{{ prob.id }}/remover" onclick="return confirm('Tem certeza? Isso apagará o problema e TODAS as submissões enviadas para ele!');">🗑️ Apagar</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">Nenhum problema cadastrado.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card">
+    <h3>👨‍💻 Competidores</h3>
+    <form method="POST" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+        <input type="hidden" name="acao" value="add_competidor">
+        <input type="text" name="nome" placeholder="Nome do competidor" required>
+        <input type="password" name="senha" placeholder="Senha" required>
+        <button type="submit">Cadastrar Competidor</button>
+    </form>
+
+    <table>
+        <tr><th>Nome</th><th>Ações</th></tr>
+        {% for user in competidores %}
+        <tr>
+            <td>{{ user.nome }}</td>
+            <td>
+                <a href="/admin/competidor/{{ user.id }}/editar">✏️ Editar</a> | 
+                <a href="/admin/competidor/{{ user.id }}/remover" onclick="return confirm('Apagar o competidor apagará todo seu histórico. Continuar?');">🗑️ Apagar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

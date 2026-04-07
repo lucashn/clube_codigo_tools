@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width: 500px; margin: auto;">
+    <h3>Editar Competidor: {{ user.nome }}</h3>
+    <form method="POST">
+        <label>Nome do Competidor:</label>
+        <input type="text" name="nome" value="{{ user.nome }}" required>
+        
+        <label>Nova Senha (deixe em branco para manter a atual):</label>
+        <input type="password" name="senha" placeholder="Nova senha...">
+        
+        <button type="submit">Salvar Alterações</button>
+        <a href="/admin" style="margin-left: 10px; color: red;">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

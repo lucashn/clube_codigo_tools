@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ comp.nome }}</h2>
+<p>
+    Início: {{ comp.inicio.strftime('%d/%m/%Y %H:%M') }} | 
+    Término: {{ comp.termino.strftime('%d/%m/%Y %H:%M') }}
+</p>
+
+<div style="display: flex; gap: 20px;">
+    <div style="flex: 2;">
+        {% if comp.termino >= agora %}
+            <div class="card">
+                <h3>Enviar Código</h3>
+                <form method="POST">
+                    <select name="problema_id" required>
+                        <option value="">Selecione o Problema</option>
+                        {% for prob in comp.problemas %}
+                            <option value="{{ prob.id }}">{{ prob.letra }} - {{ prob.nome }}</option>
+                        {% endfor %}
+                    </select>
+                    <textarea name="codigo" rows="8" placeholder="Cole seu código aqui..." required style="font-family: monospace;"></textarea>
+                    <button type="submit">Submeter Código</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="flash" style="background: #f8d7da; color: #842029;">
+                ⚠️ Esta competição já foi encerrada. O envio de submissões está bloqueado.
+            </div>
+        {% endif %}
+
+        <div class="card">
+            <h3>Minhas Submissões nesta Competição</h3>
+            <table>
+                <tr><th>Problema</th><th>Status</th><th>Horário</th></tr>
+                {% for sub in submissoes %}
+                <tr>
+                    <td>{{ sub.problema.letra }}</td>
+                    <td>
+                        {% if sub.status == 'correta' %} <span style="color: green; font-weight: bold;">Correta</span>
+                        {% elif sub.status == 'pendente' %} <span style="color: orange;">Pendente</span>
+                        {% else %} <span style="color: red;">{{ sub.status | capitalize }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ sub.data_envio.strftime('%H:%M:%S') }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3">Nenhuma submissão enviada ainda.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div style="flex: 1;">
+        <div class="card">
+            <h3>🏆 Placar</h3>
+            <table>
+                <tr><th>Pos</th><th>Competidor</th><th>Pts</th></tr>
+                {% for nome, pontos in placar %}
+                <tr>
+                    <td>#{{ loop.index }}</td>
+                    <td>{{ nome }}</td>
+                    <td><strong>{{ pontos }}</strong></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3">Ninguém pontuou ainda.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

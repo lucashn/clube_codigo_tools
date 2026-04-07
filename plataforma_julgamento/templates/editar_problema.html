@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width: 500px; margin: auto;">
+    <h3>Editar Problema: {{ prob.letra }} - {{ prob.nome }}</h3>
+    <p style="color: gray; margin-top: -10px; margin-bottom: 20px;">Pertence à Competição: <strong>{{ prob.competicao.nome }}</strong></p>
+    
+    <form method="POST">
+        <label>Letra Identificadora (ex: A, B, C):</label>
+        <input type="text" name="letra" value="{{ prob.letra }}" maxlength="1" style="text-transform: uppercase;" required>
+        
+        <label>Nome do Problema:</label>
+        <input type="text" name="nome" value="{{ prob.nome }}" required>
+        
+        <button type="submit">Salvar Alterações</button>
+        <a href="/admin" style="margin-left: 10px; color: red; font-weight: bold; text-decoration: none;">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

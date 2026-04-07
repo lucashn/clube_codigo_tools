@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Clube do Código IFMS - Competição</title>
+    <style>
+        :root {
+            --verde-escuro: #1b4332;
+            --verde-medio: #2d6a4f;
+            --verde-claro: #40916c;
+            --fundo: #f0fdf4;
+            --texto: #081c15;
+            --branco: #ffffff;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--fundo);
+            color: var(--texto);
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: var(--verde-escuro);
+            color: var(--branco);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header a { color: var(--branco); text-decoration: none; font-weight: bold; margin-left: 15px;}
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .card {
+            background: var(--branco);
+            border-left: 5px solid var(--verde-medio);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: var(--verde-claro);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: var(--verde-medio); }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0 15px; box-sizing: border-box;}
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: left; }
+        th { background-color: var(--verde-claro); color: white; }
+        .flash { background: #d1e7dd; color: #0f5132; padding: 10px; margin-bottom: 15px; }
+        pre { background: #222; color: #0f0; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>Clube do Código - Competição</h2>
+        <nav>
+            <a href="/">Home/Placar</a>
+            {% if session.user_id %}
+                {% if session.is_admin %} <a href="/admin">Painel Admin</a> {% endif %}
+                <span>| Olá, {{ session.nome }}!</span>
+                <a href="/logout">Sair</a>
+            {% else %}
+                <a href="/login">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
