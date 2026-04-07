@@ -42,6 +42,7 @@
             <td>{{ comp.nome }}</td>
             <td>{{ comp.termino.strftime('%d/%m/%Y %H:%M') }}</td>
             <td>
+                <a href="/admin/competicao/{{ comp.id }}/placar" style="color: #2d6a4f; font-weight: bold;">📊 Placar Geral</a> |
                 <a href="/admin/competicao/{{ comp.id }}/editar">✏️ Editar</a> | 
                 <a href="/admin/competicao/{{ comp.id }}/remover" onclick="return confirm('Tem certeza? Isso apagará a competição e TODAS as suas submissões/problemas!');">🗑️ Apagar</a>
             </td>

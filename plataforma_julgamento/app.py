@@ -241,6 +241,52 @@ def editar_problema(id):
         return redirect(url_for('admin'))
     return render_template('editar_problema.html', prob=prob)
 
+@app.route('/admin/competicao/<int:id_comp>/placar')
+def placar_admin(id_comp):
+    # Proteção: Apenas admin pode acessar
+    if not session.get('is_admin'): 
+        flash('Acesso negado.', 'erro')
+        return redirect(url_for('index'))
+        
+    comp = Competicao.query.get_or_404(id_comp)
+    
+    # Busca os problemas ordenados pela letra (A, B, C...) para montar as colunas
+    problemas = Problema.query.filter_by(competicao_id=id_comp).order_by(Problema.letra).all()
+    
+    # Busca todos os usuários que não são admin (competidores)
+    competidores = User.query.filter_by(is_admin=False).all()
+    
+    dados_placar = []
+    
+    for user in competidores:
+        # Busca todas as submissões deste usuário nesta competição específica
+        submissoes = Submissao.query.join(Problema).filter(
+            Submissao.user_id == user.id,
+            Problema.competicao_id == id_comp
+        ).all()
+        
+        # Mapeia qual é o status final de cada problema para o usuário
+        prob_status = {}
+        for sub in submissoes:
+            # A lógica aqui garante que, se ele já acertou (correta), 
+            # uma submissão posterior com erro não apaga o acerto dele na tabela.
+            if prob_status.get(sub.problema_id) != 'correta':
+                prob_status[sub.problema_id] = sub.status
+                
+        # Calcula o total de pontos (apenas as corretas)
+        total_pontos = sum(1 for status in prob_status.values() if status == 'correta')
+        
+        dados_placar.append({
+            'nome': user.nome,
+            'total': total_pontos,
+            'status_problemas': prob_status
+        })
+        
+    # Ordena a lista de competidores do maior total de pontos para o menor
+    dados_placar.sort(key=lambda x: x['total'], reverse=True)
+    
+    return render_template('placar_admin.html', comp=comp, problemas=problemas, placar=dados_placar)
+
 # ================= INICIALIZAÇÃO =================
 
 def setup_db():
