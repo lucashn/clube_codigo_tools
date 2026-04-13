@@ -293,10 +293,10 @@ def setup_db():
     with app.app_context():
         db.create_all()
         if not User.query.first():
-            admin = User(nome='admin', senha_hash=generate_password_hash('admin'), is_admin=True)
+            admin = User(nome='admin', senha_hash=generate_password_hash('D0c3nt3'), is_admin=True)
             db.session.add(admin)
             db.session.commit()
 
 if __name__ == '__main__':
     setup_db()
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
