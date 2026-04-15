@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>📄 Todas as Submissões: {{ comp.nome }}</h3>
+        <a href="/admin" style="font-weight: bold; color: var(--verde-escuro);">🔙 Voltar ao Painel</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Data/Hora</th>
+                <th>Competidor</th>
+                <th>Prob</th>
+                <th>Status</th>
+                <th>Código</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sub in submissoes %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="font-size: 0.85em;">{{ sub.data_envio.strftime('%d/%m %H:%M:%S') }}</td>
+                <td><strong>{{ sub.user.nome }}</strong></td>
+                <td><span title="{{ sub.problema.nome }}">{{ sub.problema.letra }}</span></td>
+                <td>
+                    {% if sub.status == 'correta' %}
+                        <span style="color: green;">✅ Correta</span>
+                    {% elif sub.status == 'pendente' %}
+                        <span style="color: orange;">⏳ Pendente</span>
+                    {% else %}
+                        <span style="color: red;">❌ {{ sub.status | capitalize }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button onclick="toggleCode('code-{{ sub.id }}')" style="padding: 2px 8px; font-size: 0.8em; background-color: #666;">
+                        Ver Código
+                    </button>
+                </td>
+            </tr>
+            <tr id="code-{{ sub.id }}" style="display: none; background-color: #f9f9f9;">
+                <td colspan="5">
+                    <pre style="margin: 10px; font-size: 0.9em; border: 1px solid #ddd;">{{ sub.codigo }}</pre>
+                    <div style="padding: 10px; text-align: right;">
+                        <form method="POST" action="/admin" style="display: inline;">
+                            <input type="hidden" name="acao" value="julgar">
+                            <input type="hidden" name="submissao_id" value="{{ sub.id }}">
+                            <select name="status" style="width: auto; margin-bottom: 0;">
+                                <option value="correta" {% if sub.status == 'correta' %}selected{% endif %}>Correta</option>
+                                <option value="incorreta" {% if sub.status == 'incorreta' %}selected{% endif %}>Incorreta</option>
+                                <option value="tempo limite excedido" {% if sub.status == 'tempo limite excedido' %}selected{% endif %}>TLE</option>
+                                <option value="inválida" {% if sub.status == 'inválida' %}selected{% endif %}>Inválida</option>
+                            </select>
+                            <button type="submit" style="padding: 5px 10px;">Alterar Veredito</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">Nenhuma submissão encontrada para esta competição.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleCode(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === 'none') ? 'table-row' : 'none';
+}
+</script>
+{% endblock %}
