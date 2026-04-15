@@ -11,6 +11,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+PENALIDADE = 20 # penalidade por submissão errada, em minutos
+
 # ================= MODELOS DE BANCO DE DADOS =================
 
 class User(db.Model):
@@ -258,50 +260,77 @@ def editar_problema(id):
 
 @app.route('/admin/competicao/<int:id_comp>/placar')
 def placar_admin(id_comp):
-    # Proteção: Apenas admin pode acessar
     if not session.get('is_admin'): 
-        flash('Acesso negado.', 'erro')
         return redirect(url_for('index'))
         
     comp = Competicao.query.get_or_404(id_comp)
-    
-    # Busca os problemas ordenados pela letra (A, B, C...) para montar as colunas
     problemas = Problema.query.filter_by(competicao_id=id_comp).order_by(Problema.letra).all()
-    
-    # Busca todos os usuários que não são admin (competidores)
     competidores = User.query.filter_by(is_admin=False).all()
     
     dados_placar = []
     
     for user in competidores:
-        # Busca todas as submissões deste usuário nesta competição específica
-        submissoes = Submissao.query.join(Problema).filter(
-            Submissao.user_id == user.id,
-            Problema.competicao_id == id_comp
-        ).all()
-        
-        # Mapeia qual é o status final de cada problema para o usuário
-        prob_status = {}
-        for sub in submissoes:
-            # A lógica aqui garante que, se ele já acertou (correta), 
-            # uma submissão posterior com erro não apaga o acerto dele na tabela.
-            if prob_status.get(sub.problema_id) != 'correta':
-                prob_status[sub.problema_id] = sub.status
-                
-        # Calcula o total de pontos (apenas as corretas)
-        total_pontos = sum(1 for status in prob_status.values() if status == 'correta')
-        
+        total_resolvidos = 0
+        penalidade_total = 0
+        status_por_problema = {} # Armazena info visual para a tabela
+
+        for prob in problemas:
+            # Busca todas as submissões deste user para este problema, da primeira para a última
+            subs = Submissao.query.filter_by(user_id=user.id, problema_id=prob.id).order_by(Submissao.data_envio.asc()).all()
+            
+            primeiro_acerto = None
+            tentativas_incorretas_antes = 0
+            
+            for s in subs:
+                if s.status in ('correta', 'pendente'):
+                    primeiro_acerto = s
+                    break
+                else:
+                    tentativas_incorretas_antes += 1
+            
+            if primeiro_acerto:
+                if primeiro_acerto.status == 'pendente':
+                    status_por_problema[prob.id] = {
+                        'status': 'pendente',
+                        'texto': ''
+                    }
+                else:
+                    total_resolvidos += 1
+                    
+                    delta_tempo = primeiro_acerto.data_envio - comp.inicio
+                    minutos_decorridos = delta_tempo.total_seconds() // 60
+                    
+                    penalidade_problema = int(minutos_decorridos + (tentativas_incorretas_antes * PENALIDADE))
+                    penalidade_total += penalidade_problema
+                    
+                    status_por_problema[prob.id] = {
+                        'status': 'correta',
+                        'texto': f"{tentativas_incorretas_antes+1} / {penalidade_problema}"
+                    }
+            else:
+                # Se não acertou, mostra apenas que houve tentativas ou está zerado
+                if tentativas_incorretas_antes > 0:
+                    status_por_problema[prob.id] = {
+                        'status': 'erro',
+                        'texto': f"{tentativas_incorretas_antes} / -"
+                    }
+                else:
+                    status_por_problema[prob.id] = {
+                        'status': 'nenhum',
+                        'texto': "-"
+                    }
+
         dados_placar.append({
             'nome': user.nome,
-            'total': total_pontos,
-            'status_problemas': prob_status
+            'resolvidos': total_resolvidos,
+            'penalidade': int(penalidade_total),
+            'problemas': status_por_problema
         })
         
-    # Ordena a lista de competidores do maior total de pontos para o menor
-    dados_placar.sort(key=lambda x: x['total'], reverse=True)
-
-    agora = datetime.now()
+    # Ordenação ICPC: 1º Resolvidos (desc), 2º Penalidade (asc)
+    dados_placar.sort(key=lambda x: (-x['resolvidos'], x['penalidade']))
     
+    agora = datetime.now()
     return render_template('placar_admin.html', comp=comp, problemas=problemas, placar=dados_placar, agora=agora)
 
 # ================= INICIALIZAÇÃO =================

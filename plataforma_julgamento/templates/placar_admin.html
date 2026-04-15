@@ -2,24 +2,25 @@
 {% block content %}
 <div class="card" style="max-width: 1000px; margin: auto; overflow-x: auto;">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h3>📊 Placar: {{ comp.nome }}</h3>
-            <p style="font-size: 0.8em; color: var(--verde-claro); margin-top: -10px;">
-                Última atualização: {{ agora.strftime('%H:%M:%S') }}
-            </p>
-        </div>
-        <a href="/admin" style="text-decoration: none; font-weight: bold; color: var(--verde-escuro);">🔙 Voltar ao Painel</a>
+        <h3>📊 Placar: {{ comp.nome }}</h3>
+        <p style="font-size: 0.8em; color: var(--verde-claro); margin-top: -10px;">
+            Última atualização: {{ agora.strftime('%H:%M:%S') }}
+        </p>
+        <a href="/admin" style="text-decoration: none; font-weight: bold; color: var(--verde-escuro);">🔙 Voltar ao
+            Painel</a>
     </div>
-    
+
     <table style="text-align: center;">
         <thead>
             <tr>
-                <th>Posição</th>
+                <th style="text-align: center;">Posição</th>
                 <th style="text-align: left;">Competidor</th>
-                <th>Pontos</th>
                 {% for prob in problemas %}
-                    <th title="{{ prob.nome }}">{{ prob.letra }}</th>
+                <th style="text-align: center; background-color: #333;" title="{{ prob.nome }}">
+                    {{ prob.letra }}
+                </th>
                 {% endfor %}
+                <th style="text-align: center; background-color: var(--verde-escuro);">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -27,30 +28,62 @@
             <tr>
                 <td><strong>#{{ loop.index }}</strong></td>
                 <td style="text-align: left;">{{ linha.nome }}</td>
-                <td style="font-size: 1.2em; font-weight: bold;">{{ linha.total }}</td>
+
                 {% for prob in problemas %}
-                    {% set status = linha.status_problemas.get(prob.id) %}
-                    {% if status == 'correta' %} <td style="background-color: #d1e7dd;">✅</td>
-                    {% elif status == 'pendente' %} <td style="background-color: #fff3cd;">⏳</td>
-                    {% elif status %} <td style="background-color: #f8d7da;">❌</td>
-                    {% else %} <td>-</td>
-                    {% endif %}
+                {% set info = linha.problemas.get(prob.id) %}
+
+                {% if info.status == 'correta' %}
+                <td style="background-color: #d1e7dd; color: #0f5132;">✅ {{ info.texto }}</td>
+
+                {% elif info.status == 'pendente' %}
+                <td style="background-color: #fff3cd; color: #856404;">⏳ {{ info.texto }}</td>
+
+                {% elif info.status == 'erro' %}
+                <td style="background-color: #f8d7da; color: #842029;">❌ {{ info.texto }}</td>
+
+                {% else %}
+                <td style="color: #ccc;">-</td>
+                {% endif %}
                 {% endfor %}
+
+                <td style="font-size: 1.2em; color: var(--verde-escuro)">
+                    <span style="font-weight: bold;">
+                        {{ linha.resolvidos }}
+                    </span>
+                    ({{ (linha.penalidade) }})
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="{{ 3 + problemas|length }}">Nenhum competidor cadastrado ou dados insuficientes.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <div style="margin-top: 20px; font-size: 0.9em; color: #555;">
+        <strong>Legenda:</strong><br><br>
+        ✅ <strong>Correta:</strong> Problema resolvido com sucesso.<br>
+        ⏳ <strong>Pendente:</strong> Submissão aguardando julgamento do admin.<br>
+        ❌ <strong>Erro:</strong> Submissão julgada como Incorreta, TLE ou Inválida.<br>
+        <strong>-</strong> (Hífen): Nenhuma submissão enviada para o problema.<br><br>
+        <em>Nota: o primeiro número mostra a quantidade de submissões, e o segundo a penalidade resultante</em> 
+    </div>
 </div>
 
 <script>
     let seconds = 30;
 
+    // Função que atualiza o contador visual a cada segundo
     const timer = setInterval(() => {
         seconds--;
         if (seconds <= 0) {
+            console.log("recarregar 1...")
             clearInterval(timer);
-            window.location.reload();
+            console.log("recarregar 2...")
+            window.location.reload(); // Recarrega a página quando chega a zero
         }
     }, 1000);
 </script>
+
 {% endblock %}
