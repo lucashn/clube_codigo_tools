@@ -127,6 +127,21 @@ def competicao(id_comp):
 
 # ================= ROTAS DE ADMINISTRAÇÃO =================
 
+
+@app.route('/admin/competicao/<int:id_comp>/submissoes')
+def ver_submissoes_competicao(id_comp):
+    if not session.get('is_admin'):
+        return redirect(url_for('index'))
+    
+    comp = Competicao.query.get_or_404(id_comp)
+    
+    # Busca todas as submissões ligadas aos problemas desta competição
+    submissoes = Submissao.query.join(Problema).filter(
+        Problema.competicao_id == id_comp
+    ).order_by(Submissao.data_envio.desc()).all()
+    
+    return render_template('todas_submissoes.html', comp=comp, submissoes=submissoes)
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if not session.get('is_admin'):
