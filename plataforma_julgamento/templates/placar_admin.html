@@ -2,20 +2,23 @@
 {% block content %}
 <div class="card" style="max-width: 1000px; margin: auto; overflow-x: auto;">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>📊 Placar Detalhado: {{ comp.nome }}</h3>
+        <div>
+            <h3>📊 Placar: {{ comp.nome }}</h3>
+            <p style="font-size: 0.8em; color: var(--verde-claro); margin-top: -10px;">
+                Última atualização: {{ agora.strftime('%H:%M:%S') }}
+            </p>
+        </div>
         <a href="/admin" style="text-decoration: none; font-weight: bold; color: var(--verde-escuro);">🔙 Voltar ao Painel</a>
     </div>
     
     <table style="text-align: center;">
         <thead>
             <tr>
-                <th style="text-align: center;">Posição</th>
+                <th>Posição</th>
                 <th style="text-align: left;">Competidor</th>
-                <th style="text-align: center; background-color: var(--verde-escuro);">Pontos</th>
+                <th>Pontos</th>
                 {% for prob in problemas %}
-                    <th style="text-align: center; background-color: #333;" title="{{ prob.nome }}">
-                        {{ prob.letra }}
-                    </th>
+                    <th title="{{ prob.nome }}">{{ prob.letra }}</th>
                 {% endfor %}
             </tr>
         </thead>
@@ -24,39 +27,30 @@
             <tr>
                 <td><strong>#{{ loop.index }}</strong></td>
                 <td style="text-align: left;">{{ linha.nome }}</td>
-                <td style="font-size: 1.2em; font-weight: bold; color: var(--verde-escuro);">{{ linha.total }}</td>
-                
+                <td style="font-size: 1.2em; font-weight: bold;">{{ linha.total }}</td>
                 {% for prob in problemas %}
                     {% set status = linha.status_problemas.get(prob.id) %}
-                    
-                    {% if status == 'correta' %}
-                        <td style="background-color: #d1e7dd; color: #0f5132; font-weight: bold;">✅</td>
-                        
-                    {% elif status == 'pendente' %}
-                        <td style="background-color: #fff3cd; color: #856404;">⏳</td>
-                        
-                    {% elif status in ['incorreta', 'tempo limite excedido', 'inválida'] %}
-                        <td style="background-color: #f8d7da; color: #842029;">❌</td>
-                        
-                    {% else %}
-                        <td style="color: #ccc;">-</td>
+                    {% if status == 'correta' %} <td style="background-color: #d1e7dd;">✅</td>
+                    {% elif status == 'pendente' %} <td style="background-color: #fff3cd;">⏳</td>
+                    {% elif status %} <td style="background-color: #f8d7da;">❌</td>
+                    {% else %} <td>-</td>
                     {% endif %}
                 {% endfor %}
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="{{ 3 + problemas|length }}">Nenhum competidor cadastrado ou dados insuficientes.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    
-    <div style="margin-top: 20px; font-size: 0.9em; color: #555;">
-        <strong>Legenda:</strong><br>
-        ✅ <strong>Correta:</strong> Problema resolvido com sucesso.<br>
-        ⏳ <strong>Pendente:</strong> Submissão aguardando julgamento do admin.<br>
-        ❌ <strong>Erro:</strong> Submissão julgada como Incorreta, TLE ou Inválida.<br>
-        <strong>-</strong> (Hífen): Nenhuma submissão enviada para o problema.
-    </div>
 </div>
+
+<script>
+    let seconds = 30;
+
+    const timer = setInterval(() => {
+        seconds--;
+        if (seconds <= 0) {
+            clearInterval(timer);
+            window.location.reload();
+        }
+    }, 1000);
+</script>
 {% endblock %}

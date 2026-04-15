@@ -29,7 +29,7 @@
         {% endif %}
 
         <div class="card">
-            <h3>Minhas Submissões nesta Competição</h3>
+            <h3>Minhas Submissões</h3>
             <table>
                 <tr><th>Problema</th><th>Status</th><th>Horário</th></tr>
                 {% for sub in submissoes %}
@@ -45,24 +45,6 @@
                 </tr>
                 {% else %}
                 <tr><td colspan="3">Nenhuma submissão enviada ainda.</td></tr>
-                {% endfor %}
-            </table>
-        </div>
-    </div>
-
-    <div style="flex: 1;">
-        <div class="card">
-            <h3>🏆 Placar</h3>
-            <table>
-                <tr><th>Pos</th><th>Competidor</th><th>Pts</th></tr>
-                {% for nome, pontos in placar %}
-                <tr>
-                    <td>#{{ loop.index }}</td>
-                    <td>{{ nome }}</td>
-                    <td><strong>{{ pontos }}</strong></td>
-                </tr>
-                {% else %}
-                <tr><td colspan="3">Ninguém pontuou ainda.</td></tr>
                 {% endfor %}
             </table>
         </div>

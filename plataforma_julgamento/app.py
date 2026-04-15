@@ -284,8 +284,10 @@ def placar_admin(id_comp):
         
     # Ordena a lista de competidores do maior total de pontos para o menor
     dados_placar.sort(key=lambda x: x['total'], reverse=True)
+
+    agora = datetime.now()
     
-    return render_template('placar_admin.html', comp=comp, problemas=problemas, placar=dados_placar)
+    return render_template('placar_admin.html', comp=comp, problemas=problemas, placar=dados_placar, agora=agora)
 
 # ================= INICIALIZAÇÃO =================
 
