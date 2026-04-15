@@ -26,7 +26,7 @@
         <tbody>
             {% for linha in placar %}
             <tr>
-                <td><strong>#{{ loop.index }}</strong></td>
+                <td><strong>{{ loop.index }}</strong></td>
                 <td style="text-align: left;">{{ linha.nome }}</td>
 
                 {% for prob in problemas %}
@@ -67,7 +67,7 @@
         ⏳ <strong>Pendente:</strong> Submissão aguardando julgamento do admin.<br>
         ❌ <strong>Erro:</strong> Submissão julgada como Incorreta, TLE ou Inválida.<br>
         <strong>-</strong> (Hífen): Nenhuma submissão enviada para o problema.<br><br>
-        <em>Nota: o primeiro número mostra a quantidade de submissões, e o segundo a penalidade resultante</em> 
+        <em>Nota: o primeiro número mostra a quantidade de submissões e o segundo a penalidade resultante</em> 
     </div>
 </div>
 
