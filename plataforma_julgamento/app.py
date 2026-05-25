@@ -339,7 +339,7 @@ def setup_db():
     with app.app_context():
         db.create_all()
         if not User.query.first():
-            admin = User(nome='admin', senha_hash=generate_password_hash('D0c3nt3'), is_admin=True)
+            admin = User(nome='admin', senha_hash=generate_password_hash('senha_super_secreta'), is_admin=True)
             db.session.add(admin)
             db.session.commit()
 
